@@ -351,6 +351,7 @@ public abstract class AbstractRecommender implements Recommender {
      */
     public Map<MeasureValue, Double> evaluateMap() throws LibrecException {
         Map<MeasureValue, Double> evaluatedMap = new HashMap<>();
+        //添加评估函数，如果是topN，则添加topN评估函数；否则添加rating评估函数
         List<MeasureValue> measureValueList = Measure.getMeasureEnumList(isRanking, topN);
         if (measureValueList != null) {
             for (MeasureValue measureValue : measureValueList) {

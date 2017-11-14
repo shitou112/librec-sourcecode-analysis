@@ -62,6 +62,8 @@ public class SVDPlusPlusRecommender extends BiasedMFRecommender {
 
         impItemFactors = new DenseMatrix(numItems, numFactors);
         impItemFactors.init(initMean, initStd);
+
+        // 获取用户对应的物品序列
         userItemsList = getUserItemsList(trainMatrix);
     }
 

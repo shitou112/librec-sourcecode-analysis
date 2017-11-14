@@ -124,7 +124,6 @@ public abstract class FactorizationMachineRecommender extends AbstractRecommende
         for (int dim = 0; dim < trainTensor.numDimensions; dim++) {
             p += trainTensor.dimensions[dim]; // set the size of appender vectors
         }
-
         n = trainTensor.size(); // set the number of ratings
         numFactors = k = conf.getInt("rec.factor.number");
 

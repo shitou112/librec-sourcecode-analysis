@@ -62,6 +62,7 @@ bpoissmf=net.librec.recommender.cf.rating.BPoissMFRecommender
 cptf=net.librec.recommender.cf.rating.CPTFRecommender
 fmals=net.librec.recommender.cf.rating.FMALSRecommender
 fmsgd=net.librec.recommender.cf.rating.FMSGDRecommender
+fmftrl=net.librec.recommender.cf.rating.FMFTRLRecommender
 gplsa=net.librec.recommender.cf.rating.GPLSARecommender
 itemknn=net.librec.recommender.cf.ItemKNNRecommender
 ldcc=net.librec.recommender.cf.rating.LDCCRecommender
@@ -93,6 +94,7 @@ hybrid=net.librec.recommender.hybrid.HybridRecommender
 personalitydiagnosis=net.librec.recommender.ext.PersonalityDiagnosisRecommender
 prankd=net.librec.recommender.ext.PRankDRecommender
 slopeone=net.librec.recommender.ext.SlopeOneRecommender
+bipolarslopeone=net.librec.recommender.ext.BipolarSlopeOneRecommender
 #Evaluator(-eval)
 auc=net.librec.eval.ranking.AUCEvaluator
 ap=net.librec.eval.ranking.AveragePrecisionEvaluator

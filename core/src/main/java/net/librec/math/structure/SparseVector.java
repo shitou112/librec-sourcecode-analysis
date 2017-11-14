@@ -413,6 +413,7 @@ public class SparseVector implements Iterable<VectorEntry>, Serializable {
         if (i >= 0 && index[i] == idx)
             return i;
 
+        // 找不到会扩容数组
         int[] newIndex = index;
         double[] newData = data;
 

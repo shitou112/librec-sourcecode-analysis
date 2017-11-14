@@ -59,4 +59,5 @@ public class MyInter {
         System.out.println(new MyInter().maxPoints(p));
         System.out.println(0%3);
     }
+
 }

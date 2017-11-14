@@ -71,6 +71,7 @@ public class ArffDataConvertor extends AbstractDataConvertor {
     public DenseVector oneHotRatingVector;
 
     // user, item, appender {raw id, inner id} mapping
+    // 给各个属性重新分配id,从0开始编号，方便计算处理
     private ArrayList<BiMap<String, Integer>> featuresInnerMapping;
 
     /**
@@ -435,26 +436,32 @@ public class ArffDataConvertor extends AbstractDataConvertor {
             for (int i = 0; i < numAttrs; i++) {
                 //找到用户属性的那一列
                 if (i == userCol) {
+                    int j;
+                    j = i > ratingCol? i - 1: i;
                     double userId = (double) instance.getValueByIndex(userCol);
                     String strUserId = String.valueOf((int) userId);
-                    int userInnerId = featuresInnerMapping.get(i).containsKey(strUserId) ? featuresInnerMapping.get(i).get(strUserId) : featuresInnerMapping.get(i).size();
+                    int userInnerId = featuresInnerMapping.get(j).containsKey(strUserId) ? featuresInnerMapping.get(j).get(strUserId) : featuresInnerMapping.get(j).size();
                     //给用户重新分配id，新id从0开始，arff格式的处理与text格式处理相似，都是重新分配id
-                    featuresInnerMapping.get(i).put(strUserId, userInnerId);
-                    nDKeys[i].add(userInnerId);
-                    setOfAttrs.get(i).add(userInnerId);
+                    featuresInnerMapping.get(j).put(strUserId, userInnerId);
+                    nDKeys[j].add(userInnerId);
+                    setOfAttrs.get(j).add(userInnerId);
                 }
-                //找到物品属性那一列
+                    //找到物品属性那一列
                 else if (i == itemCol) {
-                    double itemId = (double) instance.getValueByIndex(itemCol);
-                    String strItemId = String.valueOf((int) itemId);
-                    int itemInnerId = featuresInnerMapping.get(i).containsKey(strItemId) ? featuresInnerMapping.get(i).get(strItemId) : featuresInnerMapping.get(i).size();
-                    featuresInnerMapping.get(i).put(strItemId, itemInnerId);
-                    nDKeys[i].add(itemInnerId);
-                    setOfAttrs.get(i).add(itemInnerId);
-                } else if (i == ratingCol) {
+                        int j;
+                        j = i > ratingCol? i - 1: i;
+                        double itemId = (double) instance.getValueByIndex(itemCol);
+                        String strItemId = String.valueOf((int) itemId);
+                        int itemInnerId = featuresInnerMapping.get(j).containsKey(strItemId) ? featuresInnerMapping.get(j).get(strItemId) : featuresInnerMapping.get(j).size();
+                        featuresInnerMapping.get(j).put(strItemId, itemInnerId);
+                        nDKeys[j].add(itemInnerId);
+                        setOfAttrs.get(j).add(itemInnerId);
+                    }
+                else if (i == ratingCol) {
                     double rating = (double) instance.getValueByIndex(ratingCol);
                     ratings.add(rating);
-                } else {
+                }
+                else {
                     int j;
                     //评分属性这一栏将放在tensor最后一列，因此后面的属性需要往前移一列
                     if (i > ratingCol) {
@@ -487,7 +494,9 @@ public class ArffDataConvertor extends AbstractDataConvertor {
             dims[i] = setOfAttrs.get(i).size();
         }
 
-        //dims:存储每一属性包含元素个数的数组
+        //dims:存储每一属性包含不同元素的数目，也就是对每一个维度都作了hashSet，主要是为了矩阵化作准备,
+        //      ArffDataConvertor除了产生一个SparseTensor，存储数据，还会产生一个偏好矩阵SparseMatrix，
+        //      可以方便计算相似度。
         // nDkeys:相当于不规整的二维数组，每一列的元素个数可能不同，列数即data中属性数目
         // ratings:用户评分
         return new SparseTensor(dims, nDKeys, ratings);

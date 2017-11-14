@@ -65,8 +65,15 @@ public class FMSGDRecommender extends FactorizationMachineRecommender {
 
             int userDimension = trainTensor.getUserDimension();
             int itemDimension = trainTensor.getItemDimension();
+
+            int num = 0;
             for (TensorEntry me : trainTensor) {
+                ++num;
+                System.out.println(num);
+                // entryKeys代表张量的每一行元素
                 int[] entryKeys = me.keys();
+
+                // 构建新的特征向量，其维度是p
                 SparseVector x = tenserKeysToFeatureVector(entryKeys);
 
                 double rate = me.get();
@@ -85,6 +92,7 @@ public class FMSGDRecommender extends FactorizationMachineRecommender {
                 // update w0
                 w0 += -learnRate * gradW0;
 
+                long start = 0;
                 // 1-way interactions
                 for (int l = 0; l < p; l++) {
                     if (!x.contains(l))
@@ -101,19 +109,25 @@ public class FMSGDRecommender extends FactorizationMachineRecommender {
                         double oldVlf = V.get(l, f);
                         double hVlf = 0;
                         double xl = x.get(l);
-                        for (int j = 0; j < p; j++) {
-                            if (j != l && x.contains(j))
-                                hVlf += xl * V.get(j, f) * x.get(j);
+                        long a = System.currentTimeMillis();
+                        if (xl != 0) {
+                            for (int j = 0; j < p; j++) {
+                                if (j != l && x.contains(j))
+                                    hVlf += xl * V.get(j, f) * x.get(j);
+                            }
                         }
                         double gradVlf = gradLoss * hVlf + regF * oldVlf;
                         V.add(l, f, -learnRate * gradVlf);
                         loss += regF * oldVlf * oldVlf;
                     }
                 }
+
             }
-
             loss *= 0.5;
-
+            System.out.println(w0);
+            System.out.println(W);
+            System.out.println("---------");
+            System.out.println(V);
             if (isConverged(iter)  && earlyStop)
                 break;
         }

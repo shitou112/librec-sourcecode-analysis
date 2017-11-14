@@ -73,6 +73,7 @@ public class SlopeOneRecommender extends AbstractRecommender {
                     }
                 }
             }
+
         }
 
         // normalize differences
@@ -100,6 +101,7 @@ public class SlopeOneRecommender extends AbstractRecommender {
     protected double predict(int userIdx, int itemIdx) throws LibrecException {
         SparseVector itemRatingsVector = trainMatrix.row(userIdx, itemIdx);
         double predictRatings = 0, cardinaryValues = 0;
+        //加权平均
         for (int comparedItemIdx : itemRatingsVector.getIndex()) {
             double cardinaryValue = cardMatrix.get(itemIdx, comparedItemIdx);
             if (cardinaryValue > 0) {
@@ -108,6 +110,15 @@ public class SlopeOneRecommender extends AbstractRecommender {
             }
         }
 
+        //平均值
+//        for (int comparedItemIdx : itemRatingsVector.getIndex()){
+//            predictRatings += devMatrix.get(itemIdx, comparedItemIdx) + itemRatingsVector.get(comparedItemIdx);
+//        }
+//        if (itemRatingsVector.getIndex().length != 0)
+//            predictRatings = predictRatings / itemRatingsVector.getIndex().length;
+//        return predictRatings == 0? globalMean: predictRatings;
+//        if (cardinaryValues == 0)
+//            System.out.println("haha");
         return cardinaryValues > 0 ? predictRatings / cardinaryValues : globalMean;
     }
 }

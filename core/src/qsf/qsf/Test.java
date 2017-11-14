@@ -16,6 +16,8 @@ import net.librec.recommender.RecommenderContext;
 import net.librec.recommender.cf.ItemKNNRecommender;
 import net.librec.recommender.cf.UserKNNRecommender;
 import net.librec.recommender.cf.rating.FMSGDRecommender;
+import net.librec.recommender.ext.BipolarSlopeOneRecommender;
+import net.librec.recommender.ext.SlopeOneRecommender;
 import net.librec.recommender.hybrid.HybridRecommender;
 import net.librec.recommender.item.RecommendedItem;
 import net.librec.similarity.PCCSimilarity;
@@ -69,26 +71,24 @@ public class Test {
         // build data model
         Configuration conf = new Configuration();
         conf.set("dfs.data.dir", "data");
-        conf.set("data.input.path", "test/arfftest/testset");
-        conf.set("data.model.format", "arff");
-        conf.set("data.splitter.trainset.ratio", "0.9");
-        ArffDataModel dataModel = new ArffDataModel(conf);
+        conf.set("data.input.path", "filmtrust/rating");
+        conf.set("data.model.format", "UIR");
+        conf.set("data.splitter.trainset.ratio", "0.8");
+        TextDataModel dataModel = new TextDataModel(conf);
         dataModel.buildDataModel();
 
-        SparseTensor trainDataSet = (SparseTensor)dataModel.getTrainDataSet();
-        System.out.println(trainDataSet);
         System.out.println("---------");
-        SparseTensor testDataSet = (SparseTensor)dataModel.getTestDataSet();
-        System.out.println(testDataSet);
+//        SparseTensor testDataSet = (SparseTensor)dataModel.getTestDataSet();
+//        System.out.println(testDataSet);
 
         // build recommender context
         RecommenderContext context = new RecommenderContext(conf, dataModel);
 
         // build similarity
         conf.set("rec.recommender.similarity.key" ,"item");
-        RecommenderSimilarity similarity = new PCCSimilarity();
-        similarity.buildSimilarityMatrix(dataModel);
-        context.setSimilarity(similarity);
+//        RecommenderSimilarity similarity = new PCCSimilarity();
+//        similarity.buildSimilarityMatrix(dataModel);
+//        context.setSimilarity(similarity);
 
         // build recommender
         conf.set("rec.neighbors.knn.number", "5");
@@ -99,7 +99,7 @@ public class Test {
         conf.set("rec.iterator.maximum", "10");
         conf.set("rec.factor.number", "10");
         conf.set("rec.iterator.learnRate", "0.01");
-        Recommender recommender = new FMSGDRecommender();
+        Recommender recommender = new BipolarSlopeOneRecommender();
         recommender.setContext(context);
 
         // run recommender algorithm
@@ -109,6 +109,12 @@ public class Test {
         RecommenderEvaluator evaluator = new RMSEEvaluator();
         System.out.println("RMSE:" + recommender.evaluate(evaluator));
 
+        Recommender slopeOneRecommender = new SlopeOneRecommender();
+        slopeOneRecommender.setContext(context);
+        slopeOneRecommender.recommend(context);
+        System.out.println("slopeOne rmse:" + slopeOneRecommender.evaluate(evaluator));
+
+
         // set id list of filter
         List<String> userIdList = new ArrayList<>();
         List<String> itemIdList = new ArrayList<>();
@@ -117,22 +123,22 @@ public class Test {
 //        userIdList.add("2");
         itemIdList.add("70");
 
-        // filter the recommended result
-        List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
-        System.out.println(recommendedItemList.size());
-        GenericRecommendedFilter filter = new GenericRecommendedFilter();
-        filter.setUserIdList(userIdList);
-        filter.setItemIdList(itemIdList);
-        recommendedItemList = filter.filter(recommendedItemList);
-
-        // print filter result
-        for (RecommendedItem recommendedItem : recommendedItemList) {
-            System.out.println(
-                    "user:" + recommendedItem.getUserId() + " " +
-                            "item:" + recommendedItem.getItemId() + " " +
-                            "value:" + recommendedItem.getValue()
-            );
-        }
+//        // filter the recommended result
+//        List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
+//        System.out.println(recommendedItemList.size());
+//        GenericRecommendedFilter filter = new GenericRecommendedFilter();
+//        filter.setUserIdList(userIdList);
+//        filter.setItemIdList(itemIdList);
+//        recommendedItemList = filter.filter(recommendedItemList);
+//
+//        // print filter result
+//        for (RecommendedItem recommendedItem : recommendedItemList) {
+//            System.out.println(
+//                    "user:" + recommendedItem.getUserId() + " " +
+//                            "item:" + recommendedItem.getItemId() + " " +
+//                            "value:" + recommendedItem.getValue()
+//            );
+//        }
     }
 
     public static void main(String[] args) throws Exception {
